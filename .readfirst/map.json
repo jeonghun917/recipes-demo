@@ -1,0 +1,43 @@
+{
+  "format": "readfirst/map@1",
+  "groups": [
+    {
+      "id": "views",
+      "title": "request handlers for signed-in users",
+      "files": ["app/views.py"],
+      "checks": [{ "run": "python3 -m unittest", "why": "no view shows another household's recipes" }],
+      "risks": [
+        { "text": "QuerySet.filter returns a new QuerySet; `qs.filter(...)` on its own line does nothing. Always write `qs = qs.filter(...)`" }
+      ]
+    },
+    {
+      "id": "models",
+      "title": "data and the query layer",
+      "files": ["app/__init__.py", "app/models.py"],
+      "checks": [{ "run": "python3 -m unittest", "why": "the views read through this layer" }],
+      "risks": []
+    },
+    {
+      "id": "tests",
+      "title": "tests",
+      "files": ["tests/**"],
+      "checks": [{ "run": "python3 -m unittest", "why": "the tests themselves" }],
+      "risks": []
+    },
+    {
+      "id": "project",
+      "title": "project files",
+      "files": [".gitignore", "README.md"],
+      "checks": [],
+      "risks": []
+    }
+  ],
+  "rules": [
+    {
+      "id": "household-scope",
+      "rule": "every query in app/views.py is filtered by the signed-in user's household_id before it is returned",
+      "why": "one household must never see another's recipes; Mealie shipped this exact bug (mealie-recipes/mealie#8964)",
+      "files": ["app/views.py"]
+    }
+  ]
+}
